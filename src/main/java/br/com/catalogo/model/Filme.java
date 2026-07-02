@@ -10,7 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 /**
- *
+ *dados dos filmes e link de vídeo
  * @author gleisy
  */
 @Entity //entidade persistente
@@ -20,18 +20,35 @@ public class Filme {
     private long id;
     private String nomeFilme;
     private String lancamento;
-    private Integer imdb;
+    private double imdb;
     private String genero;
+    private Integer duracao;
+    private String sinopse;
+    private String URL;
 
-    public Filme(long id, String nomeFilme, String lancamento, Integer imdb, String genero) {
+    public Filme(long id, String nomeFilme, String lancamento, double imdb, String genero, Integer duracao, String sinopse, String URL) {
         this.id = id;
         this.nomeFilme = nomeFilme;
         this.lancamento = lancamento;
         this.imdb = imdb;
         this.genero = genero;
+        this.duracao = duracao;
+        this.sinopse = sinopse;
+        this.URL = URL;
     }
     
+
+   
+    
     public Filme(){
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getNomeFilme() {
@@ -50,14 +67,14 @@ public class Filme {
         this.lancamento = lancamento;
     }
 
-    public int getImdb() {
+    public double getImdb() {
         return imdb;
     }
 
-    public void setImdb(int imdb) {
+    public void setImdb(double imdb) {
         this.imdb = imdb;
     }
-    
+
     public String getGenero() {
         return genero;
     }
@@ -66,13 +83,31 @@ public class Filme {
         this.genero = genero;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public Integer getDuracao() {
+        return duracao;
     }
 
-    public long getId() {
-        return id;
+    public void setDuracao(Integer duracao) {
+        this.duracao = duracao;
     }
+
+    public String getSinopse() {
+        return sinopse;
+    }
+
+    public void setSinopse(String sinopse) {
+        this.sinopse = sinopse;
+    }
+
+    public String getURL() {
+        return URL;
+    }
+
+    public void setURL(String URL) {
+        this.URL = URL;
+    }
+
+    
     
     
 }

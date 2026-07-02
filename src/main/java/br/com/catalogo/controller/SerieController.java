@@ -4,8 +4,8 @@
  */
 package br.com.catalogo.controller;
 
-import br.com.catalogo.model.Filme;
-import br.com.catalogo.repository.FilmeRepository;
+import br.com.catalogo.model.Serie;
+import br.com.catalogo.repository.SerieRepository;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,45 +19,43 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+
+
 /**
  *
  * @author gleisy
  */
+
+
 @RestController
-@RequestMapping("/Filme")
-public class FilmeController {
-    
-    //Injeção de dependência
+@RequestMapping("/serie")
+public class SerieController {
+
     @Autowired
-    private FilmeRepository filmeRepository;
-    
+    private SerieRepository serieRepository;
+   
     @PostMapping("/cadastrar")
-    public void CadastrarFilme(@RequestBody Filme f){
-        filmeRepository.save(f);
-        return;
+    public void cadastrarSerie(@RequestBody Serie s) {
+        serieRepository.save(s);
     }
+   
     @GetMapping
-    public List<Filme> listarFilmes(){
-        return filmeRepository.findAll();//busca tudo o que tá salvo no banco
+    public List<Serie> listarSerie() {
+        return serieRepository.findAll();
     }
-     
-    
-     @DeleteMapping("/remover")//e esse tambem nos metodos exist e deletebiyid
-    //Remover 
-    public void deleteFilme(@RequestParam long id,@RequestBody Filme FilmeAtualizado){
-        if(filmeRepository.existsById(id)){
-            filmeRepository.deleteById(id);
+   
+    @DeleteMapping("/remover")
+    public void deleteSerie(@RequestParam long id) {
+        if (serieRepository.existsById(id)) {
+            serieRepository.deleteById(id);
         }
     }
     
-    
     @PutMapping("/editar/{id}")
-    //Editar Aluno
-    public void editarFilme(@PathVariable long id, @RequestBody Filme filmeAtualizado){
-        if(filmeRepository.existsById(id)){
-            // Garante que o ID do filme atualizado seja o mesmo da URL
-            filmeAtualizado.setId(id);
-            filmeRepository.save(filmeAtualizado);
+    public void editarSerie(@PathVariable long id, @RequestBody Serie serieAtualizada) {
+        if (serieRepository.existsById(id)) {
+            serieAtualizada.setId(id);
+            serieRepository.save(serieAtualizada);
         }
     }
 }
