@@ -17,7 +17,7 @@ import jakarta.persistence.Id;
 public class Filme {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)//id gerado automaticamente
-    private long id;
+    private Long id;
     private String nomeFilme;
     private String lancamento;
     private double imdb;
@@ -26,7 +26,7 @@ public class Filme {
     private String sinopse;
     private String URL;
 
-    public Filme(long id, String nomeFilme, String lancamento, double imdb, String genero, Integer duracao, String sinopse, String URL) {
+    public Filme(Long id, String nomeFilme, String lancamento, double imdb, String genero, Integer duracao, String sinopse, String URL) {
         this.id = id;
         this.nomeFilme = nomeFilme;
         this.lancamento = lancamento;
@@ -43,11 +43,11 @@ public class Filme {
     public Filme(){
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

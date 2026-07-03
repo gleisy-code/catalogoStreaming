@@ -19,7 +19,7 @@ import jakarta.persistence.ManyToOne;
 public class Episodio {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id;//MAIUSCULO
     private Integer numeroEp;
     private Integer temporada;
     private String titulo;

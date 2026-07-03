@@ -31,15 +31,30 @@ public class Historico {
     @ManyToOne
     @JoinColumn(name = "idSerie")
     private Serie serie;
+    
+    @ManyToOne
+    @JoinColumn(name = "episodio_id")
+    private Episodio episodioAtual;
 
-    public Historico(Long id, Integer ondeParou, boolean assistidoCompleto, Usuario usuario, Filme filme, Serie serie) {
+    public Historico(Long id, Integer ondeParou, boolean assistidoCompleto, Usuario usuario, Filme filme, Serie serie, Episodio episodioAtual) {
         this.id = id;
         this.ondeParou = ondeParou;
         this.assistidoCompleto = assistidoCompleto;
         this.usuario = usuario;
         this.filme = filme;
         this.serie = serie;
+        this.episodioAtual = episodioAtual;
     }
+
+    public Episodio getEpisodioAtual() {
+        return episodioAtual;
+    }
+
+    public void setEpisodioAtual(Episodio episodioAtual) {
+        this.episodioAtual = episodioAtual;
+    }
+
+    
 
     public Historico() {
     }

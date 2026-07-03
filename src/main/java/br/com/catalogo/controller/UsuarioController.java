@@ -6,8 +6,12 @@ package br.com.catalogo.controller;
 
 import br.com.catalogo.model.Usuario;
 import br.com.catalogo.repository.UsuarioRepository;
+import br.com.catalogo.service.UsuarioService;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,31 +30,42 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/usuario")
 public class UsuarioController {
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    private UsuarioService usuarioService;
    
     @PostMapping("/cadastrar")
-    public void cadastrarUsuario(@RequestBody Usuario u) {
-        usuarioRepository.save(u);
+    public Usuario cadastrarUsuario(@RequestBody Usuario u) {
+        return usuarioService.cadastrarUsuario(u);
     }
    
     @GetMapping
     public List<Usuario> listarUsuarios() {
-        return usuarioRepository.findAll();
+        
+        return usuarioService.listarUsuarios();
+        
     }
    
     @DeleteMapping("/remover")
     public void deleteUsuario(@RequestParam long id) {
-        if (usuarioRepository.existsById(id)) {
-            usuarioRepository.deleteById(id);
-        }
+        
     }
     
     @PutMapping("/editar/{id}")
     public void editarUsuario(@PathVariable long id, @RequestBody Usuario usuarioAtualizado) {
-        if (usuarioRepository.existsById(id)) {
-            usuarioAtualizado.setUsuario_id(id);
-            usuarioRepository.save(usuarioAtualizado);
-        }
+        
     }
+    
+    @GetMapping("/verificar-acesso/{id}")
+    public ResponseEntity<Boolean> verificarAcessoUsuario(@PathVariable Long id) {
+        boolean temAcesso = usuarioService.verificarAcessoUsuario(id);
+        return ResponseEntity.ok(temAcesso);
+    }
+    
+    
+    @GetMapping("/verificar-admin/{id}")
+    public ResponseEntity<Boolean> ehAdminOficial(@PathVariable Long id) {
+        boolean isAdmin = usuarioService.ehAdminOficial(id);
+        return ResponseEntity.ok(isAdmin);
+    }
+    
+
 }
