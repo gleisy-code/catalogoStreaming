@@ -4,18 +4,17 @@
  */
 package br.com.catalogo.repository;
 
-
 import br.com.catalogo.model.Historico;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 /**
- *
  * @author gleisy
  */
 @Repository
 public interface HistoricoRepository extends JpaRepository<Historico, Long> {
     
-    List<Historico> findByUsuarioUsuarioIdAndAssistidoCompletoFalse(Long usuarioId);//da classe historico service do metodo listarContinuarAssistindo
+    // Corrigido para refletir o nome do atributo exato da id do usuário (usuario_id)
+    List<Historico> findByUsuario_UsuarioIdAndAssistidoCompletoFalse(Long usuarioId);
 }

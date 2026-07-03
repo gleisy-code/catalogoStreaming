@@ -9,23 +9,20 @@ import br.com.catalogo.repository.FilmeRepository;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
- *funcionalidades para usuarios com plano ativo, listar todos os filmes, filtragem de generos, filtro de busca por imdb
- * funcionalidades para admin, adicionar e remover novos filmes, editar informações
  * @author gleisy
  */
+@Service // Corrigido: Faltava adicionar essa anotação fundamental aqui
 public class FilmeService {
+
     @Autowired
     private FilmeRepository filmeRepository;
 
     @Autowired
     private UsuarioService usuarioService;
     
-    
-    /**
-     * Listar todos os filmes se o usuário tiver o plano ativo.
-     */
     public List<Filme> listarTodos(Long usuarioId) {
         if (!usuarioService.verificarAcessoUsuario(usuarioId)) {
             throw new RuntimeException("Acesso negado: Seu plano está inativo.");
@@ -33,9 +30,6 @@ public class FilmeService {
         return filmeRepository.findAll();
     }
     
-    /**
-     * Filtrar filmes por gênero (na memória usando Java puro).
-     */
     public List<Filme> filtrarPorGenero(Long usuarioId, String genero) {
         if (!usuarioService.verificarAcessoUsuario(usuarioId)) {
             throw new RuntimeException("Acesso negado: Seu plano está inativo.");
@@ -52,9 +46,6 @@ public class FilmeService {
         return filmesFiltrados;
     }
     
-    /**
-     * Filtrar filmes por uma nota mínima do IMDb.
-     */
     public List<Filme> filtrarPorImdb(Long usuarioId, Double notaMinima) {
         if (!usuarioService.verificarAcessoUsuario(usuarioId)) {
             throw new RuntimeException("Acesso negado: Seu plano está inativo.");
@@ -71,10 +62,6 @@ public class FilmeService {
         return filmesFiltrados;
     }
     
-    
-    /**
-     * Adicionar novo filme ao catálogo.
-     */
     public Filme adicionarFilme(Long adminId, Filme filme) {
         if (!usuarioService.ehAdminOficial(adminId)) {
             throw new RuntimeException("Acesso negado: Apenas administradores oficiais podem adicionar filmes.");
@@ -82,31 +69,26 @@ public class FilmeService {
         return filmeRepository.save(filme);
     }
 
-    /**
-     * Remover um filme do catálogo.
-     */
     public void removerFilme(Long adminId, Long filmeId) {
         if (!usuarioService.ehAdminOficial(adminId)) {
             throw new RuntimeException("Acesso negado: Apenas administradores oficiais podem remover filmes.");
         }
         if (filmeRepository.existsById(filmeId)) {
             filmeRepository.deleteById(filmeId);
+        } else {
+            throw new RuntimeException("Filme não encontrado para o id: " + filmeId);
         }
     }
 
-    /**
-     * Editar informações de um filme existente.
-     */
     public void editarFilme(Long adminId, Long filmeId, Filme filmeAtualizado) {
         if (!usuarioService.ehAdminOficial(adminId)) {
             throw new RuntimeException("Acesso negado: Apenas administradores oficiais podem editar filmes.");
         }
         if (filmeRepository.existsById(filmeId)) {
-            filmeAtualizado.setId(filmeId); // Ajuste para o método set do ID da sua classe Filme
+            filmeAtualizado.setId(filmeId);
             filmeRepository.save(filmeAtualizado);
+        } else {
+            throw new RuntimeException("Falha na atualização! Filme não encontrado para o id: " + filmeId);
         }
     }
-
-    
-    
 }

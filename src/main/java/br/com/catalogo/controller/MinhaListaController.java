@@ -5,21 +5,13 @@
 package br.com.catalogo.controller;
 
 import br.com.catalogo.model.MinhaLista;
-import br.com.catalogo.repository.MinhaListaRepository;
+import br.com.catalogo.service.MinhaListaService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 /**
- *
  * @author gleisy
  */
 @RestController
@@ -27,30 +19,42 @@ import org.springframework.web.bind.annotation.RestController;
 public class MinhaListaController {
 
     @Autowired
-    private MinhaListaRepository minhaListaRepository;
-   
-    @PostMapping("/cadastrar")
-    public void cadastrarNaLista(@RequestBody MinhaLista ml) {
-        minhaListaRepository.save(ml);
-    }
-   
-    @GetMapping
-    public List<MinhaLista> listarMinhaLista() {
-        return minhaListaRepository.findAll();
-    }
-   
-    @DeleteMapping("/remover")
-    public void deleteDaLista(@RequestParam long id) {
-        if (minhaListaRepository.existsById(id)) {
-            minhaListaRepository.deleteById(id);
+    private MinhaListaService minhaListaService;
+
+    // Adicionar aos Favoritos (Requer Plano)
+    @PostMapping("/adicionar/{usuarioId}")
+    public ResponseEntity<?> adicionarAosFavoritos(@PathVariable Long usuarioId, @RequestBody MinhaLista itemFavorito) {
+        try {
+            MinhaLista novoFavorito = minhaListaService.adicionarAosFavoritos(usuarioId, itemFavorito);
+            return ResponseEntity.status(201).body(novoFavorito); // 201 Created
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(403).body(e.getMessage()); // 403 Forbidden (Plano Inativo)
         }
     }
-    
-    @PutMapping("/editar/{id}")
-    public void editarLista(@PathVariable long id, @RequestBody MinhaLista listaAtualizada) {
-        if (minhaListaRepository.existsById(id)) {
-            listaAtualizada.setId(id);
-            minhaListaRepository.save(listaAtualizada);
+
+    // Remover dos Favoritos (Requer Plano)
+    @DeleteMapping("/remover/{idFavorito}/usuario/{usuarioId}")
+    public ResponseEntity<?> removerDosFavoritos(@PathVariable Long usuarioId, @PathVariable Long idFavorito) {
+        try {
+            minhaListaService.removerDosFavoritos(usuarioId, idFavorito);
+            return ResponseEntity.ok("Item removido dos favoritos com sucesso!");
+        } catch (RuntimeException e) {
+            // Pode falhar por plano inativo (403) ou ID não existente (404)
+            if (e.getMessage().contains("negado")) {
+                return ResponseEntity.status(403).body(e.getMessage());
+            }
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
+
+    // Listar Favoritos do Usuário (Requer Plano)
+    @GetMapping("/listar/{usuarioId}")
+    public ResponseEntity<?> listarFavoritosDoUsuario(@PathVariable Long usuarioId) {
+        try {
+            List<MinhaLista> favoritos = minhaListaService.listarFavoritosDoUsuario(usuarioId);
+            return ResponseEntity.ok(favoritos);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(403).body(e.getMessage());
         }
     }
 }

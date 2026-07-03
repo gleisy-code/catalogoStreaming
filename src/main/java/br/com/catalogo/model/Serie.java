@@ -4,16 +4,16 @@
  */
 package br.com.catalogo.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import java.util.List;
 
 /**
- *Guarda as informações gerais da série e gerencia a lista de episódios dela
+ * Guarda as informações gerais da série e gerencia a lista de episódios dela.
  * @author gleisy
  */
 @Entity
@@ -24,11 +24,12 @@ public class Serie {
     private String titulo;
     private String genero;
     private Double imbd;
-    private String sinopse ;
+    private String sinopse;
     private Integer QuantTemporadas;
-    @OneToMany
-    @JoinColumn(name = "epsodios")
-    List<Episodio> epsodios;//@OneToMany
+    
+    // Corrigido: Mantida apenas a relação certa com Cascade para salvar episódios direto pela série
+    @OneToMany(mappedBy = "serie", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Episodio> epsodios;
 
     public Serie() {
     }
@@ -42,7 +43,6 @@ public class Serie {
         this.QuantTemporadas = QuantTemporadas;
         this.epsodios = epsodios;
     }
-    
 
     public Long getId() {
         return id;
@@ -99,6 +99,4 @@ public class Serie {
     public void setEpsodios(List<Episodio> epsodios) {
         this.epsodios = epsodios;
     }
-    
-    
 }

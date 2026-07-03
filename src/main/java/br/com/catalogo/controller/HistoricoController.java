@@ -5,21 +5,13 @@
 package br.com.catalogo.controller;
 
 import br.com.catalogo.model.Historico;
-import br.com.catalogo.repository.HistoricoRepository;
+import br.com.catalogo.service.HistoricoService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 /**
- *
  * @author gleisy
  */
 @RestController
@@ -27,30 +19,35 @@ import org.springframework.web.bind.annotation.RestController;
 public class HistoricoController {
 
     @Autowired
-    private HistoricoRepository historicoRepository;
-   
-    @PostMapping("/cadastrar")
-    public void cadastrarHistorico(@RequestBody Historico h) {
-        historicoRepository.save(h);
-    }
-   
-    @GetMapping
-    public List<Historico> listarHistorico() {
-        return historicoRepository.findAll();
-    }
-   
-    @DeleteMapping("/remover")
-    public void deleteHistorico(@RequestParam long id) {
-        if (historicoRepository.existsById(id)) {
-            historicoRepository.deleteById(id);
+    private HistoricoService historicoService;
+
+    @PostMapping("/progresso-filme")
+    public ResponseEntity<?> registrarProgressoFilme(@RequestBody Historico historico) {
+        try {
+            Historico novoHistorico = historicoService.registrarProgressoFilme(historico);
+            return ResponseEntity.status(201).body(novoHistorico);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
         }
     }
-    
-    @PutMapping("/editar/{id}")
-    public void editarHistorico(@PathVariable long id, @RequestBody Historico historicoAtualizado) {
-        if (historicoRepository.existsById(id)) {
-            historicoAtualizado.setId(id);
-            historicoRepository.save(historicoAtualizado);
+
+    @PostMapping("/progresso-serie")
+    public ResponseEntity<?> registrarProgressoSerie(@RequestBody Historico historico) {
+        try {
+            Historico novoHistorico = historicoService.registrarProgressoSerie(historico);
+            return ResponseEntity.status(201).body(novoHistorico);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/continuar/{usuarioId}")
+    public ResponseEntity<?> listarContinuarAssistindo(@PathVariable Long usuarioId) {
+        try {
+            List<Historico> itensIncompletos = historicoService.listarContinuarAssistindo(usuarioId);
+            return ResponseEntity.ok(itensIncompletos);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(403).body(e.getMessage());
         }
     }
 }

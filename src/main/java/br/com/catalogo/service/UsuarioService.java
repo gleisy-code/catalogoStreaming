@@ -12,25 +12,28 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-/**
- *controle de tempo de plano pra o usuario, reconhecimento se o usuario é admin oficial
- * @author gleisy
- */
 @Service
 public class UsuarioService {
     
     @Autowired
     private UsuarioRepository usuarioRepository;
     
-    
     public List<Usuario> listarUsuarios(){
         return usuarioRepository.findAll();
     }
+
+    public Optional<Usuario> buscarPorId(Long id) {
+        return usuarioRepository.findById(id);
+    }
+    
     public void deleteUsuario(Long id){
         if(usuarioRepository.existsById(id)){
             usuarioRepository.deleteById(id);
+        } else {
+            throw new RuntimeException("Não foi possível remover. Usuário não encontrado para o id: " + id);
         }
     }
+    
     public Usuario cadastrarUsuario(Usuario usuario){
         if (usuario.isPlanoAtivo()) {
             usuario.setDataAtivacaoPlano(LocalDate.now());
@@ -42,9 +45,11 @@ public class UsuarioService {
         if(usuarioRepository.existsById(id)){
             usuarioAtualizado.setUsuario_id(id);
             usuarioRepository.save(usuarioAtualizado);
+        } else {
+            throw new RuntimeException("Falha na atualização! Verifique se o usuário existe para o id: " + id);
         }
     }
-    //metodos novos
+    
     public boolean verificarAcessoUsuario(Long id) {
         Optional<Usuario> usuarioOpt = usuarioRepository.findById(id);
         
@@ -62,21 +67,20 @@ public class UsuarioService {
                 }
             }
             
-            // Retorna o estado atual do plano (true para liberado, false para bloqueado)
             return usuario.isPlanoAtivo();
         }
         
         return false; // Se o usuário não existir, não tem acesso
     }
+    
     public boolean ehAdminOficial(Long id) {
         Optional<Usuario> usuarioOpt = usuarioRepository.findById(id);
         
         if (usuarioOpt.isPresent()) {
             Usuario usuario = usuarioOpt.get();
-            return usuario.isEhAdmin(); // Retorna true ou false do modelo
+            return usuario.isEhAdmin(); 
         }
         
         return false;
     }
-    
 }

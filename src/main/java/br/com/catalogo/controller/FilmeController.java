@@ -5,59 +5,93 @@
 package br.com.catalogo.controller;
 
 import br.com.catalogo.model.Filme;
-import br.com.catalogo.repository.FilmeRepository;
-import java.util.ArrayList;
+import br.com.catalogo.service.FilmeService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 /**
- *
  * @author gleisy
  */
 @RestController
 @RequestMapping("/Filme")
 public class FilmeController {
     
-    //Injeção de dependência
     @Autowired
-    private FilmeRepository filmeRepository;
+    private FilmeService filmeService;
     
-    @PostMapping("/cadastrar")
-    public void CadastrarFilme(@RequestBody Filme f){
-        filmeRepository.save(f);
-        return;
+    // Cadastrar novo filme (Apenas Admin)
+    @PostMapping("/cadastrar/{adminId}")
+    public ResponseEntity<?> adicionarFilme(@PathVariable Long adminId, @RequestBody Filme filme) {
+        try {
+            Filme filmeSalvo = filmeService.adicionarFilme(adminId, filme);
+            return ResponseEntity.status(201).body(filmeSalvo);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(409).body(e.getMessage());
+        }
     }
-    @GetMapping
-    public List<Filme> listarFilmes(){
-        return filmeRepository.findAll();//busca tudo o que tá salvo no banco
+
+    // Listar todos os filmes (Requer Plano)
+    @GetMapping("/listar/{usuarioId}")
+    public ResponseEntity<?> listarTodosFilmes(@PathVariable Long usuarioId) {
+        try {
+            List<Filme> filmes = filmeService.listarTodos(usuarioId);
+            return ResponseEntity.ok(filmes);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(403).body(e.getMessage());
+        }
     }
-     
-    
-     @DeleteMapping("/remover")//e esse tambem nos metodos exist e deletebiyid
-    //Remover 
-    public void deleteFilme(@RequestParam long id,@RequestBody Filme FilmeAtualizado){
-        if(filmeRepository.existsById(id)){
-            filmeRepository.deleteById(id);
+
+    // Editar informações de um filme (Apenas Admin)
+    @PutMapping("/editar/{filmeId}/admin/{adminId}")
+    public ResponseEntity<?> editarFilme(@PathVariable Long adminId, @PathVariable Long filmeId, @RequestBody Filme filmeAtualizado) {
+        try {
+            filmeService.editarFilme(adminId, filmeId, filmeAtualizado);
+            return ResponseEntity.ok("Filme atualizado com sucesso!");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(409).body(e.getMessage());
         }
     }
     
+    // Remover filme do catálogo (Apenas Admin)
+    @DeleteMapping("/remover/{filmeId}/admin/{adminId}")
+    public ResponseEntity<?> removerFilme(@PathVariable Long adminId, @PathVariable Long filmeId) {
+        try {
+            filmeService.removerFilme(adminId, filmeId);
+            return ResponseEntity.ok("Filme removido com sucesso!");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(409).body(e.getMessage());
+        }
+    }
     
-    @PutMapping("/editar/{id}")
-    //Editar Aluno
-    public void editarFilme(@PathVariable long id, @RequestBody Filme filmeAtualizado){
-        if(filmeRepository.existsById(id)){
-            // Garante que o ID do filme atualizado seja o mesmo da URL
-            filmeAtualizado.setId(id);
-            filmeRepository.save(filmeAtualizado);
+    // Filtrar por gênero (Requer Plano)
+    @GetMapping("/genero")
+    public ResponseEntity<?> filtrarPorGenero(@RequestParam Long usuarioId, @RequestParam String genero) {
+        try {
+            List<Filme> filmes = filmeService.filtrarPorGenero(usuarioId, genero);
+            if (!filmes.isEmpty()) {
+                return ResponseEntity.ok(filmes);
+            } else {
+                return ResponseEntity.status(404).body("Nenhum filme encontrado para o gênero: " + genero);
+            }
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(403).body(e.getMessage());
+        }
+    }
+
+    // Filtrar por nota mínima do IMDb (Requer Plano)
+    @GetMapping("/imdb")
+    public ResponseEntity<?> filtrarPorImdb(@RequestParam Long usuarioId, @RequestParam Double notaMinima) {
+        try {
+            List<Filme> filmes = filmeService.filtrarPorImdb(usuarioId, notaMinima);
+            if (!filmes.isEmpty()) {
+                return ResponseEntity.ok(filmes);
+            } else {
+                return ResponseEntity.status(404).body("Nenhum filme encontrado com nota IMDb maior ou igual a: " + notaMinima);
+            }
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(403).body(e.getMessage());
         }
     }
 }

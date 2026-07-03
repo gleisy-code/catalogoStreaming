@@ -5,67 +5,81 @@
 package br.com.catalogo.controller;
 
 import br.com.catalogo.model.Usuario;
-import br.com.catalogo.repository.UsuarioRepository;
 import br.com.catalogo.service.UsuarioService;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+import java.util.Optional;
 
-/**
- *
- * @author gleisy
- */
 @RestController
 @RequestMapping("/usuario")
 public class UsuarioController {
 
+    @Autowired // Corrigido: Faltava essa anotação essencial aqui
     private UsuarioService usuarioService;
    
-    @PostMapping("/cadastrar")
-    public Usuario cadastrarUsuario(@RequestBody Usuario u) {
-        return usuarioService.cadastrarUsuario(u);
-    }
-   
+    // Listar todos os Usuários
     @GetMapping
-    public List<Usuario> listarUsuarios() {
-        
-        return usuarioService.listarUsuarios();
-        
+    public ResponseEntity<List<Usuario>> listarUsuarios() {
+        return ResponseEntity.ok(usuarioService.listarUsuarios());
     }
-   
-    @DeleteMapping("/remover")
-    public void deleteUsuario(@RequestParam long id) {
-        
+
+    // Cadastrar Usuário
+    @PostMapping("/cadastrar")
+    public ResponseEntity<?> cadastrarUsuario(@RequestBody Usuario usuario) {
+        try {
+            Usuario usuarioSalvo = usuarioService.cadastrarUsuario(usuario);
+            return ResponseEntity.status(201).body(usuarioSalvo);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(409).body(e.getMessage());
+        }
     }
-    
+
+    // Buscar Usuário por ID
+    @GetMapping("/{id}")
+    public ResponseEntity<?> buscarUsuarioPorId(@PathVariable Long id) {
+        Optional<Usuario> usuario = usuarioService.buscarPorId(id);
+        if (usuario.isPresent()) {
+            return ResponseEntity.ok(usuario.get());
+        } else {
+            return ResponseEntity.status(404).body("Usuário não encontrado para o id: " + id);
+        }
+    }
+
+    // Remover Usuário
+    @DeleteMapping("/remover/{id}")
+    public ResponseEntity<?> deleteUsuario(@PathVariable Long id) {
+        try {
+            usuarioService.deleteUsuario(id);
+            return ResponseEntity.ok("Usuário removido com sucesso!");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
+
+    // Editar Usuário
     @PutMapping("/editar/{id}")
-    public void editarUsuario(@PathVariable long id, @RequestBody Usuario usuarioAtualizado) {
-        
+    public ResponseEntity<?> editarUsuario(@PathVariable Long id, @RequestBody Usuario usuarioAtualizado) {
+        try {
+            usuarioService.editarUsuario(id, usuarioAtualizado);
+            return ResponseEntity.ok("Usuário atualizado com sucesso!");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
     }
-    
+
+    // Verificar se o plano está ativo (Verdadeiro ou Falso)
     @GetMapping("/verificar-acesso/{id}")
-    public ResponseEntity<Boolean> verificarAcessoUsuario(@PathVariable Long id) {
+    public ResponseEntity<?> verificarAcessoUsuario(@PathVariable Long id) {
         boolean temAcesso = usuarioService.verificarAcessoUsuario(id);
         return ResponseEntity.ok(temAcesso);
     }
-    
-    
+
+    // Verificar se o usuário é Administrador (Verdadeiro ou Falso)
     @GetMapping("/verificar-admin/{id}")
-    public ResponseEntity<Boolean> ehAdminOficial(@PathVariable Long id) {
+    public ResponseEntity<?> ehAdminOficial(@PathVariable Long id) {
         boolean isAdmin = usuarioService.ehAdminOficial(id);
         return ResponseEntity.ok(isAdmin);
     }
-    
-
 }
