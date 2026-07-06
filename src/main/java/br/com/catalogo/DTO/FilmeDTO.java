@@ -6,6 +6,7 @@ package br.com.catalogo.DTO;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,6 +26,7 @@ public class FilmeDTO {
     private String nomeFilme;
 
     @NotBlank(message = "A data ou ano de lançamento é obrigatória")
+    @Pattern(regexp = "^\\d{4}$", message = "O lançamento deve conter exatamente 4 números (ex: 2026)")
     private String lancamento;
 
     private double imdb; 
