@@ -4,8 +4,10 @@
  */
 package br.com.catalogo.controller;
 
+import br.com.catalogo.DTO.MinhaListaDTO;
 import br.com.catalogo.model.MinhaLista;
 import br.com.catalogo.service.MinhaListaService;
+import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,14 +23,14 @@ public class MinhaListaController {
     @Autowired
     private MinhaListaService minhaListaService;
 
-    // Adicionar aos Favoritos (Requer Plano)
+    // Adicionar aos Favoritos (Requer Plano) - Usando DTO agora
     @PostMapping("/adicionar/{usuarioId}")
-    public ResponseEntity<?> adicionarAosFavoritos(@PathVariable Long usuarioId, @RequestBody MinhaLista itemFavorito) {
+    public ResponseEntity<?> adicionarAosFavoritos(@PathVariable Long usuarioId, @RequestBody @Valid MinhaListaDTO itemFavoritoDTO) {
         try {
-            MinhaLista novoFavorito = minhaListaService.adicionarAosFavoritos(usuarioId, itemFavorito);
-            return ResponseEntity.status(201).body(novoFavorito); // 201 Created
+            MinhaLista novoFavorito = minhaListaService.adicionarAosFavoritos(usuarioId, itemFavoritoDTO);
+            return ResponseEntity.status(201).body(novoFavorito);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(403).body(e.getMessage()); // 403 Forbidden (Plano Inativo)
+            return ResponseEntity.status(403).body(e.getMessage());
         }
     }
 
@@ -39,7 +41,6 @@ public class MinhaListaController {
             minhaListaService.removerDosFavoritos(usuarioId, idFavorito);
             return ResponseEntity.ok("Item removido dos favoritos com sucesso!");
         } catch (RuntimeException e) {
-            // Pode falhar por plano inativo (403) ou ID não existente (404)
             if (e.getMessage().contains("negado")) {
                 return ResponseEntity.status(403).body(e.getMessage());
             }

@@ -4,8 +4,10 @@
  */
 package br.com.catalogo.controller;
 
+import br.com.catalogo.DTO.HistoricoDTO;
 import br.com.catalogo.model.Historico;
 import br.com.catalogo.service.HistoricoService;
+import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,9 +24,9 @@ public class HistoricoController {
     private HistoricoService historicoService;
 
     @PostMapping("/progresso-filme")
-    public ResponseEntity<?> registrarProgressoFilme(@RequestBody Historico historico) {
+    public ResponseEntity<?> registrarProgressoFilme(@RequestBody @Valid HistoricoDTO historicoDTO) {
         try {
-            Historico novoHistorico = historicoService.registrarProgressoFilme(historico);
+            Historico novoHistorico = historicoService.registrarProgressoFilme(historicoDTO);
             return ResponseEntity.status(201).body(novoHistorico);
         } catch (RuntimeException e) {
             return ResponseEntity.status(400).body(e.getMessage());
@@ -32,9 +34,9 @@ public class HistoricoController {
     }
 
     @PostMapping("/progresso-serie")
-    public ResponseEntity<?> registrarProgressoSerie(@RequestBody Historico historico) {
+    public ResponseEntity<?> registrarProgressoSerie(@RequestBody @Valid HistoricoDTO historicoDTO) {
         try {
-            Historico novoHistorico = historicoService.registrarProgressoSerie(historico);
+            Historico novoHistorico = historicoService.registrarProgressoSerie(historicoDTO);
             return ResponseEntity.status(201).body(novoHistorico);
         } catch (RuntimeException e) {
             return ResponseEntity.status(400).body(e.getMessage());

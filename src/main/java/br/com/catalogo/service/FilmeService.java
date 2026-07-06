@@ -4,6 +4,7 @@
  */
 package br.com.catalogo.service;
 
+import br.com.catalogo.DTO.FilmeDTO;
 import br.com.catalogo.model.Filme;
 import br.com.catalogo.repository.FilmeRepository;
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Service;
 /**
  * @author gleisy
  */
-@Service // Corrigido: Faltava adicionar essa anotação fundamental aqui
+@Service 
 public class FilmeService {
 
     @Autowired
@@ -40,7 +41,7 @@ public class FilmeService {
         
         for (Filme f : todosFilmes) {
             if (f.getGenero() != null && f.getGenero().equalsIgnoreCase(genero)) {
-                filmesFiltrados.add(f);
+                filmesFiltrados.add(f);//VERIFIQUE ESSA PARTE
             }
         }
         return filmesFiltrados;
@@ -62,10 +63,21 @@ public class FilmeService {
         return filmesFiltrados;
     }
     
-    public Filme adicionarFilme(Long adminId, Filme filme) {
+    // CONVERSÃO MANUAL NO CADASTRO (POST)
+    public Filme adicionarFilme(Long adminId, FilmeDTO filmeDTO) {
         if (!usuarioService.ehAdminOficial(adminId)) {
             throw new RuntimeException("Acesso negado: Apenas administradores oficiais podem adicionar filmes.");
         }
+        
+        Filme filme = new Filme();
+        filme.setNomeFilme(filmeDTO.getNomeFilme());
+        filme.setLancamento(filmeDTO.getLancamento());
+        filme.setImdb(filmeDTO.getImdb());
+        filme.setGenero(filmeDTO.getGenero());
+        filme.setDuracao(filmeDTO.getDuracao());
+        filme.setSinopse(filmeDTO.getSinopse());
+        filme.setURL(filmeDTO.getURL());
+        
         return filmeRepository.save(filme);
     }
 
@@ -80,15 +92,23 @@ public class FilmeService {
         }
     }
 
-    public void editarFilme(Long adminId, Long filmeId, Filme filmeAtualizado) {
+    // CONVERSÃO E ATUALIZAÇÃO MANUAL NA EDIÇÃO (PUT)
+    public void editarFilme(Long adminId, Long filmeId, FilmeDTO filmeDTO) {
         if (!usuarioService.ehAdminOficial(adminId)) {
             throw new RuntimeException("Acesso negado: Apenas administradores oficiais podem editar filmes.");
         }
-        if (filmeRepository.existsById(filmeId)) {
-            filmeAtualizado.setId(filmeId);
-            filmeRepository.save(filmeAtualizado);
-        } else {
-            throw new RuntimeException("Falha na atualização! Filme não encontrado para o id: " + filmeId);
-        }
+        
+        Filme filmeExistente = filmeRepository.findById(filmeId)
+            .orElseThrow(() -> new RuntimeException("Falha na atualização! Filme não encontrado para o id: " + filmeId));
+            
+        filmeExistente.setNomeFilme(filmeDTO.getNomeFilme());
+        filmeExistente.setLancamento(filmeDTO.getLancamento());
+        filmeExistente.setImdb(filmeDTO.getImdb());
+        filmeExistente.setGenero(filmeDTO.getGenero());
+        filmeExistente.setDuracao(filmeDTO.getDuracao());
+        filmeExistente.setSinopse(filmeDTO.getSinopse());
+        filmeExistente.setURL(filmeDTO.getURL());
+        
+        filmeRepository.save(filmeExistente);
     }
 }

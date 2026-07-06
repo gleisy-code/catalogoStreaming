@@ -4,6 +4,7 @@
  */
 package br.com.catalogo.service;
 
+import br.com.catalogo.DTO.SerieDTO;
 import br.com.catalogo.model.Episodio;
 import br.com.catalogo.model.Serie;
 import br.com.catalogo.repository.SerieRepository;
@@ -77,10 +78,19 @@ public class SerieService {
         return seriesFiltradas;
     }
 
-    public Serie adicionarSerie(Long adminId, Serie serie) {
+    // CONVERSÃO MANUAL DO DTO PARA ENTIDADE NO CADASTRO
+    public Serie adicionarSerie(Long adminId, SerieDTO serieDTO) {
         if (!usuarioService.ehAdminOficial(adminId)) {
             throw new RuntimeException("Acesso negado: Apenas administradores oficiais podem adicionar séries.");
         }
+        
+        Serie serie = new Serie();
+        serie.setTitulo(serieDTO.getTitulo());
+        serie.setGenero(serieDTO.getGenero());
+        serie.setNotaImbd(serieDTO.getImbd());
+        serie.setSinopse(serieDTO.getSinopse());
+        serie.setQuantTemporadas(serieDTO.getQuantTemporadas());
+        
         return serieRepository.save(serie);
     }
 
@@ -93,7 +103,6 @@ public class SerieService {
         
         if (serieOpt.isPresent()) {
             Serie serie = serieOpt.get();
-            // Vincula o lado inverso da relação se necessário
             novoEpisodio.setSerie(serie); 
             serie.getEpsodios().add(novoEpisodio);
             return serieRepository.save(serie);

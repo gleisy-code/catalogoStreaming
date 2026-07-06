@@ -4,6 +4,7 @@
  */
 package br.com.catalogo.service;
 
+import br.com.catalogo.DTO.UsuarioDTO;
 import br.com.catalogo.model.Usuario;
 import br.com.catalogo.repository.UsuarioRepository;
 import java.time.LocalDate;
@@ -34,20 +35,34 @@ public class UsuarioService {
         }
     }
     
-    public Usuario cadastrarUsuario(Usuario usuario){
+    // CONVERSÃO MANUAL NO CADASTRO (POST)
+    public Usuario cadastrarUsuario(UsuarioDTO usuariodto) {
+        Usuario usuario = new Usuario();
+        usuario.setNomeUsuario(usuariodto.getNomeUsuario());
+        usuario.setEmail(usuariodto.getEmail());
+        usuario.setSenha(usuariodto.getSenha());
+        usuario.setPlanoAtivo(usuariodto.isPlanoAtivo());
+        usuario.setEhAdmin(usuariodto.isEhAdmin());
+
         if (usuario.isPlanoAtivo()) {
             usuario.setDataAtivacaoPlano(LocalDate.now());
         }
         return usuarioRepository.save(usuario);
     }
-    
-    public void editarUsuario(Long id, Usuario usuarioAtualizado){
-        if(usuarioRepository.existsById(id)){
-            usuarioAtualizado.setUsuario_id(id);
-            usuarioRepository.save(usuarioAtualizado);
-        } else {
-            throw new RuntimeException("Falha na atualização! Verifique se o usuário existe para o id: " + id);
-        }
+
+    // CONVERSÃO E ATUALIZAÇÃO MANUAL NA EDIÇÃO (PUT)
+    public void editarUsuario(Long id, UsuarioDTO usuarioDTO) {
+        Usuario usuarioExistente = usuarioRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Falha na atualização! Usuário não encontrado para o id: " + id));
+
+        // Transfere os dados do DTO para a entidade encontrada
+        usuarioExistente.setNomeUsuario(usuarioDTO.getNomeUsuario());
+        usuarioExistente.setEmail(usuarioDTO.getEmail());
+        usuarioExistente.setSenha(usuarioDTO.getSenha());
+        usuarioExistente.setPlanoAtivo(usuarioDTO.isPlanoAtivo());
+        usuarioExistente.setEhAdmin(usuarioDTO.isEhAdmin());
+
+        usuarioRepository.save(usuarioExistente);
     }
     
     public boolean verificarAcessoUsuario(Long id) {
@@ -56,21 +71,19 @@ public class UsuarioService {
         if (usuarioOpt.isPresent()) {
             Usuario usuario = usuarioOpt.get();
             
-            // Se o plano está ativo, verifica se já venceu (30 dias)
             if (usuario.isPlanoAtivo() && usuario.getDataAtivacaoPlano() != null) {
                 LocalDate dataVencimento = usuario.getDataAtivacaoPlano().plusMonths(1);
                 
-                // Se HOJE já passou da data de vencimento, o plano cai
                 if (LocalDate.now().isAfter(dataVencimento)) {
                     usuario.setPlanoAtivo(false);
-                    usuarioRepository.save(usuario); // Atualiza no banco via JPA
+                    usuarioRepository.save(usuario); 
                 }
             }
             
             return usuario.isPlanoAtivo();
         }
         
-        return false; // Se o usuário não existir, não tem acesso
+        return false; 
     }
     
     public boolean ehAdminOficial(Long id) {

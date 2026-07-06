@@ -4,9 +4,11 @@
  */
 package br.com.catalogo.controller;
 
+import br.com.catalogo.DTO.SerieDTO;
 import br.com.catalogo.model.Episodio;
 import br.com.catalogo.model.Serie;
 import br.com.catalogo.service.SerieService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +31,7 @@ public class SerieController {
             List<Serie> series = serieService.listarTodas(usuarioId);
             return ResponseEntity.ok(series);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(403).body(e.getMessage()); // 403 Forbidden
+            return ResponseEntity.status(403).body(e.getMessage());
         }
     }
 
@@ -80,18 +82,19 @@ public class SerieController {
     // ==========================================
 
     @PostMapping("/cadastrar/{adminId}")
-    public ResponseEntity<?> adicionarSerie(@PathVariable Long adminId, @RequestBody Serie serie) {
+    public ResponseEntity<?> adicionarSerie(@PathVariable Long adminId, @RequestBody @Valid SerieDTO serieDTO) {
         try {
-            Serie novaSerie = serieService.adicionarSerie(adminId, serie);
-            return ResponseEntity.status(201).body(novaSerie); // 201 Created
+            Serie novaSerie = serieService.adicionarSerie(adminId, serieDTO);
+            return ResponseEntity.status(201).body(novaSerie);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(409).body(e.getMessage()); // 409 Conflict
+            return ResponseEntity.status(409).body(e.getMessage());
         }
     }
 
     @PostMapping("/adicionar-episodio/{serieId}/admin/{adminId}")
     public ResponseEntity<?> adicionarEpisodio(@PathVariable Long adminId, @PathVariable Long serieId, @RequestBody Episodio novoEpisodio) {
         try {
+            // Nota: Se 'Episodio' possuir um DTO próprio futuramente, altere a assinatura aqui também.
             Serie serieAtualizada = serieService.adicionarEpisodio(adminId, serieId, novoEpisodio);
             return ResponseEntity.status(201).body(serieAtualizada);
         } catch (RuntimeException e) {

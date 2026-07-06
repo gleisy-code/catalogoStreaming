@@ -4,8 +4,10 @@
  */
 package br.com.catalogo.controller;
 
+import br.com.catalogo.DTO.FilmeDTO;
 import br.com.catalogo.model.Filme;
 import br.com.catalogo.service.FilmeService;
+import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,9 +23,8 @@ public class FilmeController {
     @Autowired
     private FilmeService filmeService;
     
-    // Cadastrar novo filme (Apenas Admin)
     @PostMapping("/cadastrar/{adminId}")
-    public ResponseEntity<?> adicionarFilme(@PathVariable Long adminId, @RequestBody Filme filme) {
+    public ResponseEntity<?> adicionarFilme(@PathVariable Long adminId, @RequestBody @Valid FilmeDTO filme) {
         try {
             Filme filmeSalvo = filmeService.adicionarFilme(adminId, filme);
             return ResponseEntity.status(201).body(filmeSalvo);
@@ -32,7 +33,6 @@ public class FilmeController {
         }
     }
 
-    // Listar todos os filmes (Requer Plano)
     @GetMapping("/listar/{usuarioId}")
     public ResponseEntity<?> listarTodosFilmes(@PathVariable Long usuarioId) {
         try {
@@ -43,18 +43,16 @@ public class FilmeController {
         }
     }
 
-    // Editar informações de um filme (Apenas Admin)
     @PutMapping("/editar/{filmeId}/admin/{adminId}")
-    public ResponseEntity<?> editarFilme(@PathVariable Long adminId, @PathVariable Long filmeId, @RequestBody Filme filmeAtualizado) {
+    public ResponseEntity<?> editarFilme(@PathVariable Long adminId, @PathVariable Long filmeId, @RequestBody @Valid FilmeDTO filmeDTO) {
         try {
-            filmeService.editarFilme(adminId, filmeId, filmeAtualizado);
+            filmeService.editarFilme(adminId, filmeId, filmeDTO);
             return ResponseEntity.ok("Filme atualizado com sucesso!");
         } catch (RuntimeException e) {
             return ResponseEntity.status(409).body(e.getMessage());
         }
     }
     
-    // Remover filme do catálogo (Apenas Admin)
     @DeleteMapping("/remover/{filmeId}/admin/{adminId}")
     public ResponseEntity<?> removerFilme(@PathVariable Long adminId, @PathVariable Long filmeId) {
         try {
@@ -65,7 +63,6 @@ public class FilmeController {
         }
     }
     
-    // Filtrar por gênero (Requer Plano)
     @GetMapping("/genero")
     public ResponseEntity<?> filtrarPorGenero(@RequestParam Long usuarioId, @RequestParam String genero) {
         try {
@@ -80,7 +77,6 @@ public class FilmeController {
         }
     }
 
-    // Filtrar por nota mínima do IMDb (Requer Plano)
     @GetMapping("/imdb")
     public ResponseEntity<?> filtrarPorImdb(@RequestParam Long usuarioId, @RequestParam Double notaMinima) {
         try {

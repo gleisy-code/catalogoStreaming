@@ -4,8 +4,11 @@
  */
 package br.com.catalogo.service;
 
+import br.com.catalogo.DTO.MinhaListaDTO;
 import br.com.catalogo.model.MinhaLista;
 import br.com.catalogo.model.Usuario;
+import br.com.catalogo.model.Filme;
+import br.com.catalogo.model.Serie;
 import br.com.catalogo.repository.MinhaListaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,18 +27,36 @@ public class MinhaListaService {
     @Autowired
     private UsuarioService usuarioService;
 
-    public MinhaLista adicionarAosFavoritos(Long usuarioId, MinhaLista itemFavorito) {
+    // CONVERSÃO MANUAL DO DTO PARA ENTIDADE NO CADASTRO
+    public MinhaLista adicionarAosFavoritos(Long usuarioId, MinhaListaDTO dto) {
         if (!usuarioService.verificarAcessoUsuario(usuarioId)) {
             throw new RuntimeException("Acesso negado: Seu plano está inativo.");
         }
         
-        // Garante que o ID do usuário enviado na URL seja injetado no objeto antes de salvar
-        if (itemFavorito.getUsuario() == null) {
-            Usuario user = new Usuario();
-            user.setUsuario_id(usuarioId);
-            itemFavorito.setUsuario(user);
-        } else {
-            itemFavorito.getUsuario().setUsuario_id(usuarioId);
+        if (dto.getFilmeId() == null && dto.getSerieId() == null) {
+            throw new RuntimeException("Falha ao favoritar: Informe pelo menos um Filme ou uma Série.");
+        }
+        
+        MinhaLista itemFavorito = new MinhaLista();
+        
+        // Vincula o Usuário da URL
+        Usuario user = new Usuario();
+        user.setUsuario_id(usuarioId);
+        itemFavorito.setUsuario(user);
+        
+        // Vincula o Filme se enviado no DTO
+        if (dto.getFilmeId() != null) {
+            Filme filme = new Filme();
+            filme.setId(dto.getFilmeId());
+            itemFavorito.setFilme(filme);
+        }
+        
+        // Vincula a Série se enviada no DTO
+        if (dto.getSerieId() != null) {
+            Serie serie = new Serie();
+            // Assumindo que a entidade Serie usa id ou similar, ajuste se o nome do campo for diferente
+            serie.setId(dto.getSerieId()); 
+            itemFavorito.setSerie(serie);
         }
         
         return minhaListaRepository.save(itemFavorito);
