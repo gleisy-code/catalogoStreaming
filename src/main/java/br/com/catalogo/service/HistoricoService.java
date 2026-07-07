@@ -36,7 +36,7 @@ public class HistoricoService {
     private SerieRepository serieRepository;
     
     public Historico registrarProgressoFilme(HistoricoDTO dto) {
-        if (!usuarioService.verificarAcessoUsuario(dto.getUsuarioId())) {
+        if (!usuarioService.verificarAcessoUsuario(dto.getUsuarioId())) { 
             throw new RuntimeException("Acesso negado: Seu plano está inativo.");
         }
 
@@ -48,7 +48,7 @@ public class HistoricoService {
                 .orElseThrow(() -> new RuntimeException("Filme não encontrado para o ID: " + dto.getFilmeId()));
 
         Historico historico = new Historico();
-        historico.setOndeParou(dto.getOndeParou());
+        historico.setOndeParou(dto.getOndeParou()); 
         
         Usuario usuario = new Usuario();
         usuario.setUsuario_id(dto.getUsuarioId());
@@ -116,6 +116,6 @@ public class HistoricoService {
         if (!usuarioService.verificarAcessoUsuario(usuarioId)) {
             throw new RuntimeException("Acesso negado: Seu plano está inativo.");
         }
-        return historicoRepository.findByUsuario_UsuarioIdAndAssistidoCompletoFalse(usuarioId);
+        return historicoRepository.buscarPorUsuarioEIncompleto(usuarioId);
     }
 }
