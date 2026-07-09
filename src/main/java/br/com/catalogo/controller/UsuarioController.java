@@ -7,6 +7,7 @@ package br.com.catalogo.controller;
 import br.com.catalogo.DTO.UsuarioDTO;
 import br.com.catalogo.model.Usuario;
 import br.com.catalogo.service.UsuarioService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,10 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/usuario")
+@Tag(
+        name = "Usuários",
+        description = "Endpoints para gerenciamento de perfis de usuários, cadastro de contas e permissões de acesso."
+)
 public class UsuarioController {
 
     @Autowired 
