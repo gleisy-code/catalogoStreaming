@@ -8,6 +8,7 @@ import br.com.catalogo.DTO.SerieDTO;
 import br.com.catalogo.model.Episodio;
 import br.com.catalogo.model.Serie;
 import br.com.catalogo.service.SerieService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/serie")
+@Tag(
+        name = "Séries",
+        description = "Endpoints responsáveis pelo gerenciamento do catálogo de séries (temporadas e episódios)."
+)
 public class SerieController {
 
     @Autowired

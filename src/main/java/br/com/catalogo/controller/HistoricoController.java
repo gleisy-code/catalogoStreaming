@@ -7,6 +7,7 @@ package br.com.catalogo.controller;
 import br.com.catalogo.DTO.HistoricoDTO;
 import br.com.catalogo.model.Historico;
 import br.com.catalogo.service.HistoricoService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,10 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/historico")
+@Tag(
+        name = "Histórico de Visualização",
+        description = "Endpoints responsáveis por registrar e listar os conteúdos que o usuário já assistiu no sistema."
+)
 public class HistoricoController {
 
     @Autowired

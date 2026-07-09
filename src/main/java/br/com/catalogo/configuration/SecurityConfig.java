@@ -1,12 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package br.com.catalogo.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -21,33 +16,42 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Mantido para os testes no Postman funcionarem
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // Bloqueia POST, PUT e DELETE em filmes e séries apenas para ADMIN
-                        .requestMatchers(HttpMethod.POST, "/filmes/**", "/series/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/filmes/**", "/series/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/filmes/**", "/series/**").hasRole("ADMIN")
+                        // 1. Rotas do seu catálogo que só o ADMIN pode acessar (ex: cadastrar filme)
+                        .requestMatchers("/filmes/cadastrar", "/series/cadastrar").hasRole("ADMIN")
                         
-                        // Todas as outras rotas (como o histórico ou listagens) exigem apenas estar logado
-                        .anyRequest().authenticated() 
+                        // 2. Rotas do seu catálogo que qualquer um logado (USER ou ADMIN) pode acessar
+                        .requestMatchers("/filmes/**", "/series/**").authenticated()
+                        
+                        // 3. Rotas Públicas: Login e TODO o ecossistema do Swagger
+                        .requestMatchers(
+                                "/auth/login", 
+                                "/swagger-ui/index.html", 
+                                "/v3/api-docs",
+                                "/swagger-ui/**",
+                                "/webjars/**", 
+                                "/v3/api-docs/**",
+                                "/v3/api-docs/swagger-config"
+                        ).permitAll()
                 )
-                .httpBasic(Customizer.withDefaults());
+                .httpBasic(Customizer.withDefaults())
+                .addFilterBefore(jwtAuthFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
     @Bean
     public InMemoryUserDetailsManager userDetailsService(PasswordEncoder passwordEncoder) {
-        // Usuário comum do seu catálogo (pode ser o cliente/comum)
+        // Altere os nomes de exibição das variáveis se preferir, mas mantenha a lógica
         var usuarioComum = User.builder()
                 .username("usuario")
                 .password(passwordEncoder.encode("1234"))
                 .roles("USER")
                 .build();
 
-        // Usuário administrador do catálogo (pode cadastrar filmes/séries)
         var admin = User.builder()
                 .username("admin")
                 .password(passwordEncoder.encode("142536"))

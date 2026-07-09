@@ -7,6 +7,7 @@ package br.com.catalogo.controller;
 import br.com.catalogo.DTO.FilmeDTO;
 import br.com.catalogo.model.Filme;
 import br.com.catalogo.service.FilmeService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,10 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/Filme")
+@Tag(
+        name = "Filmes",
+        description = "Endpoints responsáveis pelo cadastro, listagem, edição e remoção de filmes no catálogo."
+)
 public class FilmeController {
     
     @Autowired

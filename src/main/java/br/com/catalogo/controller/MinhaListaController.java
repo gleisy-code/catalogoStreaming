@@ -7,6 +7,7 @@ package br.com.catalogo.controller;
 import br.com.catalogo.DTO.MinhaListaDTO;
 import br.com.catalogo.model.MinhaLista;
 import br.com.catalogo.service.MinhaListaService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,10 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/minhalista")
+@Tag(
+        name = "Minha Lista",
+        description = "Endpoints para o usuário gerenciar sua lista de conteúdos favoritados ou salvos para assistir mais tarde."
+)
 public class MinhaListaController {
 
     @Autowired

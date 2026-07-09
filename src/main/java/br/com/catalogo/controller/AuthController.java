@@ -6,6 +6,8 @@ package br.com.catalogo.controller;
 
 import br.com.catalogo.DTO.LoginRequestDTO;
 import br.com.catalogo.service.AuthService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +15,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
+@Tag(name = "Autenticação", description = "Endpoint responsável por realizar o login e gerar o Token JWT.")
 public class AuthController {
 
     @Autowired
