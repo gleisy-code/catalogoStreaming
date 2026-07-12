@@ -12,6 +12,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+
 /**
  * Guarda as informações gerais da série e gerencia a lista de episódios dela.
  * @author gleisy
@@ -29,8 +33,8 @@ public class Serie {
     
     // Corrigido: Mantida apenas a relação certa com Cascade para salvar episódios direto pela série
     @OneToMany(mappedBy = "serie", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Episodio> epsodios;
-
     public Serie() {
     }
 

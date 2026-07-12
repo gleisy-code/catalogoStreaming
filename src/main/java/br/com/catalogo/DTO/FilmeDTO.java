@@ -21,6 +21,7 @@ import org.hibernate.validator.constraints.URL;
 @NoArgsConstructor
 public class FilmeDTO {
 
+	@io.swagger.v3.oas.annotations.media.Schema(accessMode = io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY)
     private Long id; 
 
     @NotBlank(message = "O nome do filme é obrigatório")

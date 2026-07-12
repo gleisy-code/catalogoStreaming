@@ -4,6 +4,9 @@
  */
 package br.com.catalogo.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,14 +22,19 @@ import jakarta.persistence.ManyToOne;
 public class Episodio {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;//MAIUSCULO
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY) // <-- Esconde
+    private Long id;
+    
     private Integer numeroEp;
     private Integer temporada;
     private String titulo;
     private Integer duracao;
     private String URLvideo;
+    
     @ManyToOne
     @JoinColumn(name = "idSerie")
+    @JsonBackReference
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY) // <-- Esconde
     private Serie serie;//varios eps para uma serie
 
     public Episodio() {

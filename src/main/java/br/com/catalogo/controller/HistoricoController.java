@@ -57,4 +57,6 @@ public class HistoricoController {
             return ResponseEntity.status(403).body(e.getMessage());
         }
     }
+    
+    
 }

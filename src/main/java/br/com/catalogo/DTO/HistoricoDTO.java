@@ -17,6 +17,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class HistoricoDTO {
 
+	@io.swagger.v3.oas.annotations.media.Schema(accessMode = io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY)
     private Long id;
 
     @NotNull(message = "O ponto onde parou de assistir deve ser informado")

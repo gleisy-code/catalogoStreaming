@@ -15,6 +15,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class MinhaListaDTO {
 
+	//anotação que some com a variavel, no arquivo json do swegger
+	@io.swagger.v3.oas.annotations.media.Schema(accessMode = io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY)
     private Long id;
 
     // O id do usuário virá preferencialmente pela URL, mas mantemos o campo se necessário

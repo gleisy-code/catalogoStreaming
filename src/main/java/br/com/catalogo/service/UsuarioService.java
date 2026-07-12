@@ -6,6 +6,8 @@ package br.com.catalogo.service;
 
 import br.com.catalogo.DTO.UsuarioDTO;
 import br.com.catalogo.model.Usuario;
+import br.com.catalogo.repository.HistoricoRepository;
+import br.com.catalogo.repository.MinhaListaRepository;
 import br.com.catalogo.repository.UsuarioRepository;
 import java.time.LocalDate;
 import java.util.List;
@@ -18,6 +20,12 @@ public class UsuarioService {
     
     @Autowired
     private UsuarioRepository usuarioRepository;
+    @Autowired
+    private HistoricoRepository historicoRepository;
+    @Autowired
+    private MinhaListaRepository minhaListaRepository;
+    
+    
     
     public List<Usuario> listarUsuarios(){
         return usuarioRepository.findAll();
@@ -29,6 +37,12 @@ public class UsuarioService {
     
     public void deleteUsuario(Long id){
         if(usuarioRepository.existsById(id)){
+            // Chama o novo método com a query manual segura apaga primeiro todo o historico daquele usuario
+            historicoRepository.deletarPorUsuarioId(id);
+            
+         // 2. Apaga todos os filmes favoritados na lista do usuário
+            minhaListaRepository.deletarPorUsuarioId(id);
+            
             usuarioRepository.deleteById(id);
         } else {
             throw new RuntimeException("Não foi possível remover. Usuário não encontrado para o id: " + id);
@@ -50,10 +64,19 @@ public class UsuarioService {
         return usuarioRepository.save(usuario);
     }
 
-    // CONVERSÃO E ATUALIZAÇÃO MANUAL NA EDIÇÃO (PUT)
+ // CONVERSÃO E ATUALIZAÇÃO MANUAL NA EDIÇÃO (PUT)
     public void editarUsuario(Long id, UsuarioDTO usuarioDTO) {
         Usuario usuarioExistente = usuarioRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Falha na atualização! Usuário não encontrado para o id: " + id));
+
+        // Se o plano estava inativo e agora foi ativado, define a data atual ---novo
+        if (!usuarioExistente.isPlanoAtivo() && usuarioDTO.isPlanoAtivo()) {
+            usuarioExistente.setDataAtivacaoPlano(LocalDate.now());
+        } 
+        // Se o plano foi desativado manualmente, limpa a data ----novo
+        else if (!usuarioDTO.isPlanoAtivo()) {
+            usuarioExistente.setDataAtivacaoPlano(null);
+        }
 
         // Transfere os dados do DTO para a entidade encontrada
         usuarioExistente.setNomeUsuario(usuarioDTO.getNomeUsuario());

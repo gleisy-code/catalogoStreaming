@@ -18,6 +18,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class SerieDTO {
 
+	//anotação que some com a variavel, no arquivo json do swegger
+	@io.swagger.v3.oas.annotations.media.Schema(accessMode = io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY)
     private Long id;
 
     @NotBlank(message = "O título da série é obrigatório")

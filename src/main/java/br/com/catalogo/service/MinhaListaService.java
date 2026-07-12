@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package br.com.catalogo.service;
 
 import br.com.catalogo.DTO.MinhaListaDTO;
@@ -10,6 +6,9 @@ import br.com.catalogo.model.Usuario;
 import br.com.catalogo.model.Filme;
 import br.com.catalogo.model.Serie;
 import br.com.catalogo.repository.MinhaListaRepository;
+import br.com.catalogo.repository.FilmeRepository; // Adicionado
+import br.com.catalogo.repository.SerieRepository; // Adicionado
+import br.com.catalogo.repository.UsuarioRepository; // Adicionado
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
@@ -27,6 +26,15 @@ public class MinhaListaService {
     @Autowired
     private UsuarioService usuarioService;
 
+    @Autowired
+    private FilmeRepository filmeRepository; // Injetado para buscar dados completos
+
+    @Autowired
+    private SerieRepository serieRepository; // Injetado para buscar dados completos
+
+    @Autowired
+    private UsuarioRepository usuarioRepository; // Injetado para buscar dados completos
+
     // CONVERSÃO MANUAL DO DTO PARA ENTIDADE NO CADASTRO
     public MinhaLista adicionarAosFavoritos(Long usuarioId, MinhaListaDTO dto) {
         if (!usuarioService.verificarAcessoUsuario(usuarioId)) {
@@ -39,23 +47,22 @@ public class MinhaListaService {
         
         MinhaLista itemFavorito = new MinhaLista();
         
-        // Vincula o Usuário da URL
-        Usuario user = new Usuario();
-        user.setUsuario_id(usuarioId);
+        // Busca o Usuário completo do banco para preencher a resposta
+        Usuario user = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
         itemFavorito.setUsuario(user);
         
-        // Vincula o Filme se enviado no DTO
+        // Busca o Filme completo do banco se enviado no DTO
         if (dto.getFilmeId() != null) {
-            Filme filme = new Filme();
-            filme.setId(dto.getFilmeId());
+            Filme filme = filmeRepository.findById(dto.getFilmeId())
+                    .orElseThrow(() -> new RuntimeException("Filme não encontrado para o ID: " + dto.getFilmeId()));
             itemFavorito.setFilme(filme);
         }
         
-        // Vincula a Série se enviada no DTO
+        // Busca a Série completa do banco se enviada no DTO
         if (dto.getSerieId() != null) {
-            Serie serie = new Serie();
-            // Assumindo que a entidade Serie usa id ou similar, ajuste se o nome do campo for diferente
-            serie.setId(dto.getSerieId()); 
+            Serie serie = serieRepository.findById(dto.getSerieId())
+                    .orElseThrow(() -> new RuntimeException("Série não encontrada para o ID: " + dto.getSerieId()));
             itemFavorito.setSerie(serie);
         }
         

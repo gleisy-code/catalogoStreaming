@@ -13,6 +13,7 @@ import br.com.catalogo.model.Usuario;
 import br.com.catalogo.repository.HistoricoRepository;
 import br.com.catalogo.repository.FilmeRepository;
 import br.com.catalogo.repository.SerieRepository;
+import br.com.catalogo.repository.UsuarioRepository; // Import necessário adicionado
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,9 @@ public class HistoricoService {
     
     @Autowired
     private UsuarioService usuarioService;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository; // Injeção do repositório adicionada
 
     @Autowired
     private FilmeRepository filmeRepository;
@@ -47,12 +51,13 @@ public class HistoricoService {
         Filme filme = filmeRepository.findById(dto.getFilmeId())
                 .orElseThrow(() -> new RuntimeException("Filme não encontrado para o ID: " + dto.getFilmeId()));
 
+        // CORREÇÃO: Busca o usuário completo direto do banco de dados
+        Usuario usuario = usuarioRepository.findById(dto.getUsuarioId())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado para o ID: " + dto.getUsuarioId()));
+
         Historico historico = new Historico();
         historico.setOndeParou(dto.getOndeParou()); 
-        
-        Usuario usuario = new Usuario();
-        usuario.setUsuario_id(dto.getUsuarioId());
-        historico.setUsuario(usuario);
+        historico.setUsuario(usuario); // Vincula o usuário completo com nome, email, etc.
         historico.setFilme(filme);
 
         if (historico.getOndeParou() >= filme.getDuracao()) {
@@ -73,11 +78,9 @@ public class HistoricoService {
             throw new RuntimeException("Os IDs da série e do episódio são obrigatórios.");
         }
 
-        // 1. Buscamos a série no banco de dados
         Serie serie = serieRepository.findById(dto.getSerieId())
                 .orElseThrow(() -> new RuntimeException("Série não encontrada para o ID: " + dto.getSerieId()));
 
-        // 2. Varremos a lista de episódios da própria série para achar o episódio correspondente
         List<Episodio> listaDeEps = serie.getEpsodios();
         Episodio episodioAlvo = null;
 
@@ -88,21 +91,20 @@ public class HistoricoService {
             }
         }
 
-        // Se o id do episódio enviado não estiver na lista da série, barramos aqui
         if (episodioAlvo == null) {
             throw new RuntimeException("O episódio informado não pertence à série indicada ou não existe.");
         }
 
+        // CORREÇÃO: Busca o usuário completo direto do banco de dados
+        Usuario usuario = usuarioRepository.findById(dto.getUsuarioId())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado para o ID: " + dto.getUsuarioId()));
+
         Historico historico = new Historico();
         historico.setOndeParou(dto.getOndeParou());
-
-        Usuario usuario = new Usuario();
-        usuario.setUsuario_id(dto.getUsuarioId());
-        historico.setUsuario(usuario);
+        historico.setUsuario(usuario); // Vincula o usuário completo com nome, email, etc.
         historico.setSerie(serie);
-        historico.setEpisodioAtual(episodioAlvo); // Vincula o objeto encontrado na lista
+        historico.setEpisodioAtual(episodioAlvo); 
 
-        // 3. Verifica o progresso usando a duração do episódio encontrado
         if (historico.getOndeParou() >= episodioAlvo.getDuracao()) {
             historico.setAssistidoCompleto(true); 
         } else {
